@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -6,7 +6,7 @@ from typing import Any
 class Setting:
     label: str
     default_value: Any
-    current_value: Any
+    current_value: Any | None = None
 
 
 @dataclass
@@ -17,10 +17,10 @@ class SettingOption:
 
 @dataclass
 class SettingOptions(Setting):
-    options: list[SettingOption]
+    options: list[SettingOption] = field(default_factory=lambda: list[SettingOption]())
 
 
 @dataclass
 class SettingBoolean(Setting):
-    current_value: bool
+    current_value: bool | None = None
     default_value: bool

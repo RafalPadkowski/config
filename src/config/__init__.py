@@ -36,5 +36,5 @@ class Config(configparser.ConfigParser):
         with open(self.filename, mode="w", encoding="utf-8") as configfile:
             self.write(configfile)
 
-    def constant(self, name: str) -> str | None:
-        return self.get("CONSTANTS", name, fallback=None)
+    def constant(self, name: str) -> str:
+        return self.get("CONSTANTS", name, fallback="")

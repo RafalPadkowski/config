@@ -23,3 +23,6 @@ class Config(configparser.ConfigParser):
 
     def save(self):
         pass
+
+    def constant(self, name: str) -> str | None:
+        return self.get("CONSTANTS", name, fallback=None)

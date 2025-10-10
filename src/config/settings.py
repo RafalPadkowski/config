@@ -6,21 +6,26 @@ from typing import Any
 class Setting:
     label: str
     default_value: Any
-    current_value: Any | None = None
+    current_value: Any = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.current_value = self.default_value
 
 
 @dataclass
 class SettingOption:
     display_str: str
-    value: Any
+    value: str | int
 
 
 @dataclass
 class SettingOptions(Setting):
-    options: list[SettingOption] = field(default_factory=lambda: list[SettingOption]())
+    default_value: str | int
+    current_value: str | int
+    options: list[SettingOption]
 
 
 @dataclass
 class SettingBoolean(Setting):
-    current_value: bool | None = None
     default_value: bool
+    current_value: bool

@@ -5,8 +5,8 @@ from typing import Any
 @dataclass
 class Setting:
     label: str
-    current_value: Any
     default_value: Any
+    current_value: Any
 
 
 @dataclass

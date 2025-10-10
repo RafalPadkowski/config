@@ -2,14 +2,12 @@ import configparser
 
 from .settings import Setting
 
-DEFAULT_CONFIG_FILENAME = "config.ini"
-
 
 class Config(configparser.ConfigParser):
     def __init__(
         self,
         settings: dict[str, Setting],
-        filename: str = DEFAULT_CONFIG_FILENAME,
+        filename: str = "config.ini",
     ) -> None:
         super().__init__()
 

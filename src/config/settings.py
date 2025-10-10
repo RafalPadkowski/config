@@ -6,6 +6,7 @@ from typing import Any
 class Setting:
     label: str
     current_value: Any
+    default_value: Any
 
 
 @dataclass
@@ -22,3 +23,4 @@ class SettingOptions(Setting):
 @dataclass
 class SettingBoolean(Setting):
     current_value: bool
+    default_value: bool

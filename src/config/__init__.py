@@ -1,4 +1,5 @@
 import configparser
+from typing import Any
 
 from .settings import Setting, SettingBoolean
 
@@ -6,7 +7,7 @@ from .settings import Setting, SettingBoolean
 class Config(configparser.ConfigParser):
     def __init__(
         self,
-        settings: dict[str, Setting],
+        settings: dict[str, Setting[Any]],
         filename: str = "config.ini",
     ) -> None:
         super().__init__()

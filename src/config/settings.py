@@ -1,15 +1,21 @@
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
+from typing import Generic, TypeVar
+
+T = TypeVar("T")
 
 
 @dataclass
-class Setting:
+class Setting(Generic[T]):
     label: str
-    default_value: Any
-    current_value: Any = field(init=False)
+    default_value: T
+    current_value: T
 
-    def __post_init__(self) -> None:
-        self.current_value = self.default_value
+    def __init__(self, label: str, default_value: T, current_value: T | None = None):
+        self.label = label
+        self.default_value = default_value
+        self.current_value = (
+            current_value if current_value is not None else default_value
+        )
 
 
 @dataclass
@@ -19,13 +25,20 @@ class SettingOption:
 
 
 @dataclass
-class SettingOptions(Setting):
-    default_value: str | int
-    current_value: str | int
+class SettingOptions(Setting[str | int]):
     options: list[SettingOption]
+
+    def __init__(
+        self,
+        label: str,
+        options: list[SettingOption],
+        default_value: str | int,
+        current_value: str | int | None = None,
+    ):
+        super().__init__(label, default_value, current_value)
+        self.options = options
 
 
 @dataclass
-class SettingBoolean(Setting):
-    default_value: bool
-    current_value: bool
+class SettingBoolean(Setting[bool]):
+    pass

@@ -14,6 +14,8 @@ class Config(configparser.ConfigParser):
         self.settings = settings
         self.filename = filename
 
+        self.load()
+
     def load(self):
         self.read(self.filename)
 

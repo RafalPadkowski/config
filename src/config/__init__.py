@@ -22,7 +22,11 @@ class Config(configparser.ConfigParser):
             setting.current_value = setting_value
 
     def save(self):
-        pass
+        for key, setting in self.settings.items():
+            self["SETTINGS"] = {key: str(setting.current_value)}
+
+        with open(self.filename, mode="w", encoding="utf-8") as configfile:
+            self.write(configfile)
 
     def constant(self, name: str) -> str | None:
         return self.get("CONSTANTS", name, fallback=None)

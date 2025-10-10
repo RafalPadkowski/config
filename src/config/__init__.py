@@ -1,6 +1,6 @@
 import configparser
 
-from .settings import Setting
+from .settings import Setting, SettingBoolean
 
 
 class Config(configparser.ConfigParser):
@@ -18,8 +18,14 @@ class Config(configparser.ConfigParser):
         self.read(self.filename)
 
         for key, setting in self.settings.items():
-            setting_value = self.get("SETTINGS", key, fallback=setting.default_value)
-            setting.current_value = setting_value
+            if isinstance(setting, SettingBoolean):
+                setting.current_value = self.getboolean(
+                    "SETTINGS", key, fallback=setting.default_value
+                )
+            else:
+                setting.current_value = self.get(
+                    "SETTINGS", key, fallback=setting.default_value
+                )
 
     def save(self):
         for key, setting in self.settings.items():

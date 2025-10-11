@@ -33,8 +33,11 @@ class Config(configparser.ConfigParser, Generic[TSettings]):
                 )
 
     def save(self):
+        if not self.has_section("SETTINGS"):
+            self.add_section("SETTINGS")
+
         for key, setting in self.settings.items():
-            self["SETTINGS"] = {key: str(setting.current_value)}
+            self.set("SETTINGS", key, str(setting.current_value))
 
         with open(self.filename, mode="w", encoding="utf-8") as configfile:
             self.write(configfile)

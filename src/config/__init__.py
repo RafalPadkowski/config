@@ -1,9 +1,9 @@
 import configparser
 from typing import Any, Generic, Mapping, TypeVar
 
-from .settings import Setting, SettingBoolean
+from .settings import SettingBoolean
 
-TSettings = TypeVar("TSettings", bound=Mapping[str, Setting[Any]])
+TSettings = TypeVar("TSettings", bound=Mapping[str, Any])
 
 
 class Config(configparser.ConfigParser, Generic[TSettings]):

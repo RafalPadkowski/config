@@ -1,16 +1,18 @@
 from dataclasses import dataclass
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Union
 
-T = TypeVar("T")
+TValue = TypeVar("TValue")
 
 
 @dataclass
-class Setting(Generic[T]):
+class Setting(Generic[TValue]):
     label: str
-    default_value: T
-    current_value: T
+    default_value: TValue
+    current_value: TValue
 
-    def __init__(self, label: str, default_value: T, current_value: T | None = None):
+    def __init__(
+        self, label: str, default_value: TValue, current_value: TValue | None = None
+    ):
         self.label = label
         self.default_value = default_value
         self.current_value = (
@@ -42,3 +44,6 @@ class SettingOptions(Setting[str | int]):
 @dataclass
 class SettingBoolean(Setting[bool]):
     pass
+
+
+SettingType = Union[SettingOptions, SettingBoolean]

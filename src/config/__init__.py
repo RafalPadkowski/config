@@ -1,13 +1,15 @@
 import configparser
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from .settings import Setting, SettingBoolean
 
+TSettings = TypeVar("TSettings", bound=dict[str, Setting[Any]])
 
-class Config(configparser.ConfigParser):
+
+class Config(configparser.ConfigParser, Generic[TSettings]):
     def __init__(
         self,
-        settings: dict[str, Setting[Any]],
+        settings: TSettings,
         filename: str = "config.ini",
     ) -> None:
         super().__init__()

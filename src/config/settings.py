@@ -23,19 +23,19 @@ class Setting(Generic[TValue]):
 @dataclass
 class SettingOption:
     display_str: str
-    value: str | int
+    value: str
 
 
 @dataclass
-class SettingOptions(Setting[str | int]):
+class SettingOptions(Setting[str]):
     options: list[SettingOption]
 
     def __init__(
         self,
         label: str,
         options: list[SettingOption],
-        default_value: str | int,
-        current_value: str | int | None = None,
+        default_value: str,
+        current_value: str | None = None,
     ):
         super().__init__(label, default_value, current_value)
         self.options = options

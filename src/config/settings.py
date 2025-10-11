@@ -43,7 +43,9 @@ class SettingOptions(Setting[str]):
 
 @dataclass
 class SettingBoolean(Setting[bool]):
-    def __init__(self, label: str, default_value: bool, current_value: bool | None):
+    def __init__(
+        self, label: str, default_value: bool, current_value: bool | None = None
+    ):
         super().__init__(label, default_value, current_value)
 
 

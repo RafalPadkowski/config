@@ -1,6 +1,6 @@
 [project]
 name = "config"
-version = "0.1.0"
+version = "1.0.0"
 description = "Configuration handling"
 readme = "README.md"
 authors = [

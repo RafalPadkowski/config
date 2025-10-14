@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Generic, TypeVar, Union
 
 TValue = TypeVar("TValue")
@@ -8,16 +8,12 @@ TValue = TypeVar("TValue")
 class Setting(Generic[TValue]):
     label: str
     default_value: TValue
-    current_value: TValue
+    current_value: TValue = field(init=False)
+    old_value: TValue = field(init=False)
 
-    def __init__(
-        self, label: str, default_value: TValue, current_value: TValue | None = None
-    ):
-        self.label = label
-        self.default_value = default_value
-        self.current_value = (
-            current_value if current_value is not None else default_value
-        )
+    @property
+    def changed(self) -> bool:
+        return self.current_value != self.old_value
 
 
 @dataclass
@@ -28,25 +24,17 @@ class SettingOption:
 
 @dataclass
 class SettingOptions(Setting[str]):
+    default_value: str
+    current_value: str
+    old_value: str
     options: list[SettingOption]
-
-    def __init__(
-        self,
-        label: str,
-        options: list[SettingOption],
-        default_value: str,
-        current_value: str | None = None,
-    ):
-        super().__init__(label, default_value, current_value)
-        self.options = options
 
 
 @dataclass
 class SettingBoolean(Setting[bool]):
-    def __init__(
-        self, label: str, default_value: bool, current_value: bool | None = None
-    ):
-        super().__init__(label, default_value, current_value)
+    default_value: bool
+    current_value: bool
+    old_value: bool
 
 
 SettingType = Union[SettingOptions, SettingBoolean]

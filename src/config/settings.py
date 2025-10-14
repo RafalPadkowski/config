@@ -25,16 +25,16 @@ class SettingOption:
 @dataclass
 class SettingOptions(Setting[str]):
     default_value: str
-    current_value: str
-    old_value: str
+    current_value: str = field(init=False)
+    old_value: str = field(init=False)
     options: list[SettingOption]
 
 
 @dataclass
 class SettingBoolean(Setting[bool]):
     default_value: bool
-    current_value: bool
-    old_value: bool
+    current_value: bool = field(init=False)
+    old_value: bool = field(init=False)
 
 
 SettingType = Union[SettingOptions, SettingBoolean]

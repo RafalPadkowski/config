@@ -1,6 +1,6 @@
-import configparser
+import tomllib
 from dataclasses import fields, is_dataclass
-from typing import Generic, TypeVar
+from typing import Final, Type, TypeVar, cast
 
 from .settings import SettingBoolean
 
@@ -8,50 +8,48 @@ TUi = TypeVar("TUi")
 TSettings = TypeVar("TSettings")
 
 
-class Config(configparser.ConfigParser, Generic[TUi, TSettings]):
-    def __init__(
-        self,
-        filename: str = "config.ini",
-        ui: TUi | None = None,
-        settings: TSettings | None = None,
-    ) -> None:
-        super().__init__()
+CONFIG_FILENAME: Final[str] = "config.toml"
 
-        self.filename = filename
 
-        self.ui = ui
-        self.settings = settings
+def load_ui(ui_cls: Type[TUi]) -> TUi:
+    if not is_dataclass(ui_cls):
+        raise TypeError(f"{ui_cls} is not a dataclass")
 
-        self.load()
+    with open(CONFIG_FILENAME, mode="rb") as file:
+        config_dict = tomllib.load(file)
 
-    def load(self):
-        self.read(self.filename)
+    ui_values = [config_dict["ui"].get(field.name, "") for field in fields(ui_cls)]
+    ui = cast(TUi, ui_cls(*ui_values))
 
-        if self.ui and is_dataclass(self.ui):
-            for f in fields(self.ui):
-                value = self.get("UI", f.name, fallback="")
-                setattr(self.ui, f.name, value)
+    return ui
 
-        if self.settings is not None and is_dataclass(self.settings):
-            for f in fields(self.settings):
-                setting = getattr(self.settings, f.name)
-                if isinstance(setting, SettingBoolean):
-                    setting.current_value = self.getboolean(
-                        "SETTINGS", f.name, fallback=setting.default_value
-                    )
-                else:
-                    setting.current_value = self.get(
-                        "SETTINGS", f.name, fallback=setting.default_value
-                    )
 
-    def save_settings(self):
-        if self.settings is not None and is_dataclass(self.settings):
-            if not self.has_section("SETTINGS"):
-                self.add_section("SETTINGS")
+def load_settings(settings_cls: Type[TSettings]) -> TSettings:
+    if is_dataclass(settings_cls):
+        for f in fields(self.settings):
+            setting = getattr(self.settings, f.name)
+            if isinstance(setting, SettingBoolean):
+                setting.current_value = self.getboolean(
+                    "SETTINGS", f.name, fallback=setting.default_value
+                )
+            else:
+                setting.current_value = self.get(
+                    "SETTINGS", f.name, fallback=setting.default_value
+                )
 
-            for f in fields(self.settings):
-                setting = getattr(self.settings, f.name)
-                self.set("SETTINGS", f.name, str(setting.current_value))
+    settings = settings_cls()
 
-            with open(self.filename, mode="w", encoding="utf-8") as configfile:
-                self.write(configfile)
+    return settings
+
+
+def save_settings(self):
+    if self.settings is not None and is_dataclass(self.settings):
+        if not self.has_section("SETTINGS"):
+            self.add_section("SETTINGS")
+
+        for f in fields(self.settings):
+            setting = getattr(self.settings, f.name)
+            self.set("SETTINGS", f.name, str(setting.current_value))
+
+        with open(self.filename, mode="w", encoding="utf-8") as configfile:
+            self.write(configfile)

@@ -1,45 +1,53 @@
 import tomllib
 from dataclasses import fields, is_dataclass
-from typing import Final, Type, TypeVar, cast
+from typing import Any, ClassVar, Final, Protocol, Type
 
 from .settings import SettingBoolean
-
-TUi = TypeVar("TUi")
-TSettings = TypeVar("TSettings")
-
 
 CONFIG_FILENAME: Final[str] = "config.toml"
 
 
-def load_ui(ui_cls: Type[TUi]) -> TUi:
-    if not is_dataclass(ui_cls):
-        raise TypeError(f"{ui_cls} is not a dataclass")
+class Dataclass(Protocol):
+    __dataclass_fields__: ClassVar[dict[str, Any]]
 
+
+def load_config(
+    ui_cls: Type[Dataclass] | None = None,
+    settings_cls: Type[Dataclass] | None = None,
+) -> tuple[Dataclass | None, Dataclass | None, dict[str, Any]]:
     with open(CONFIG_FILENAME, mode="rb") as file:
         config_dict = tomllib.load(file)
 
-    ui_values = [config_dict["ui"].get(field.name, "") for field in fields(ui_cls)]
-    ui = cast(TUi, ui_cls(*ui_values))
+    if is_dataclass(ui_cls):
+        ui_values = [config_dict["ui"].get(field.name, "") for field in fields(ui_cls)]
+        ui = ui_cls(*ui_values)
+    else:
+        ui = None
 
-    return ui
-
-
-def load_settings(settings_cls: Type[TSettings]) -> TSettings:
     if is_dataclass(settings_cls):
-        for f in fields(self.settings):
-            setting = getattr(self.settings, f.name)
-            if isinstance(setting, SettingBoolean):
-                setting.current_value = self.getboolean(
-                    "SETTINGS", f.name, fallback=setting.default_value
-                )
-            else:
-                setting.current_value = self.get(
-                    "SETTINGS", f.name, fallback=setting.default_value
-                )
+        settings = settings_cls()
+    else:
+        settings = None
 
-    settings = settings_cls()
+    return ui, settings, config_dict
 
-    return settings
+
+# def load_settings(settings_cls: Type[TSettings]) -> TSettings:
+#     if is_dataclass(settings_cls):
+#         for f in fields(self.settings):
+#             setting = getattr(self.settings, f.name)
+#             if isinstance(setting, SettingBoolean):
+#                 setting.current_value = self.getboolean(
+#                     "SETTINGS", f.name, fallback=setting.default_value
+#                 )
+#             else:
+#                 setting.current_value = self.get(
+#                     "SETTINGS", f.name, fallback=setting.default_value
+#                 )
+
+#     settings = settings_cls()
+
+#     return settings
 
 
 def save_settings(self):

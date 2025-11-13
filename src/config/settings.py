@@ -8,7 +8,7 @@ TValue = TypeVar("TValue")
 class Setting(Generic[TValue]):
     label: str
     default_value: TValue
-    current_value: TValue = field(init=False)
+    current_value: TValue
     old_value: TValue = field(init=False)
 
     @property
@@ -18,14 +18,14 @@ class Setting(Generic[TValue]):
 
 @dataclass
 class SettingOption:
-    display_str: str
     value: str
+    display_str: str
 
 
 @dataclass
 class SettingOptions(Setting[str]):
     default_value: str
-    current_value: str = field(init=False)
+    current_value: str
     old_value: str = field(init=False)
     options: list[SettingOption]
 
@@ -33,7 +33,7 @@ class SettingOptions(Setting[str]):
 @dataclass
 class SettingBoolean(Setting[bool]):
     default_value: bool
-    current_value: bool = field(init=False)
+    current_value: bool
     old_value: bool = field(init=False)
 
 

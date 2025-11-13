@@ -2,7 +2,7 @@ import tomllib
 from dataclasses import fields, is_dataclass
 from typing import Any, ClassVar, Final, Protocol, Type
 
-from .settings import SettingBoolean
+from .settings import SettingBoolean, SettingOption, SettingOptions, SettingType
 
 CONFIG_FILENAME: Final[str] = "config.toml"
 
@@ -19,38 +19,38 @@ def load_config(
         config_dict = tomllib.load(file)
 
     if is_dataclass(ui_cls):
-        ui_values = [config_dict["ui"].get(field.name, "") for field in fields(ui_cls)]
-        ui = ui_cls(*ui_values)
+        ui = ui_cls(**config_dict["ui"])
     else:
         ui = None
 
     if is_dataclass(settings_cls):
-        settings = settings_cls()
+        settings_values: dict[str, Any] = {}
+
+        for field in fields(settings_cls):
+            setting: SettingType
+
+            if field.type is SettingOptions:
+                d = config_dict["settings"][field.name]
+                options = [
+                    SettingOption(**option)
+                    for option in config_dict["settings"][field.name]["options"]
+                ]
+                setting = SettingOptions(
+                    **{k: v for k, v in d.items() if k != "options"}, options=options
+                )
+            else:
+                setting = SettingBoolean(**config_dict["settings"][field.name])
+
+            settings_values[field.name] = setting
+
+        settings = settings_cls(**settings_values)
     else:
         settings = None
 
     return ui, settings, config_dict
 
 
-# def load_settings(settings_cls: Type[TSettings]) -> TSettings:
-#     if is_dataclass(settings_cls):
-#         for f in fields(self.settings):
-#             setting = getattr(self.settings, f.name)
-#             if isinstance(setting, SettingBoolean):
-#                 setting.current_value = self.getboolean(
-#                     "SETTINGS", f.name, fallback=setting.default_value
-#                 )
-#             else:
-#                 setting.current_value = self.get(
-#                     "SETTINGS", f.name, fallback=setting.default_value
-#                 )
-
-#     settings = settings_cls()
-
-#     return settings
-
-
-def save_settings(self):
+def save_settings():
     if self.settings is not None and is_dataclass(self.settings):
         if not self.has_section("SETTINGS"):
             self.add_section("SETTINGS")

@@ -36,5 +36,8 @@ class SettingBoolean(Setting[bool]):
     current_value: bool
     old_value: bool = field(init=False)
 
+    def __bool__(self):
+        return self.current_value
+
 
 SettingType = Union[SettingOptions, SettingBoolean]

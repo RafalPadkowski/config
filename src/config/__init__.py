@@ -1,11 +1,9 @@
 from dataclasses import fields, is_dataclass
-from typing import Any, ClassVar, Final, Protocol, Type, cast
+from typing import Any, ClassVar, Protocol, Type, cast
 
 import tomlkit
 
 from .settings import SettingBoolean, SettingOption, SettingOptions, SettingType
-
-CONFIG_FILENAME: Final[str] = "config.toml"
 
 
 class Dataclass(Protocol):
@@ -13,11 +11,12 @@ class Dataclass(Protocol):
 
 
 def load_config(
+    config_file: str,
     ui_cls: Type[Dataclass] | None = None,
     settings_cls: Type[Dataclass] | None = None,
 ) -> tuple[Dataclass | None, Dataclass | None, dict[str, Any]]:
-    with open(CONFIG_FILENAME, mode="rt", encoding="utf-8") as file:
-        config_doc = tomlkit.load(file)
+    with open(config_file, mode="rt", encoding="utf-8") as f:
+        config_doc = tomlkit.load(f)
 
     config_dict = cast(dict[str, Any], config_doc)
 
@@ -53,9 +52,9 @@ def load_config(
     return ui, settings, config_dict
 
 
-def save_settings(settings: Dataclass):
-    with open(CONFIG_FILENAME, mode="rt", encoding="utf-8") as file:
-        config_doc = tomlkit.load(file)
+def save_settings(config_file: str, settings: Dataclass):
+    with open(config_file, mode="rt", encoding="utf-8") as f:
+        config_doc = tomlkit.load(f)
 
     config_dict = cast(dict[str, Any], config_doc)
 
@@ -63,5 +62,5 @@ def save_settings(settings: Dataclass):
         setting: SettingType = getattr(settings, field.name)
         config_dict["settings"][field.name]["current_value"] = setting.current_value
 
-    with open(CONFIG_FILENAME, mode="wt", encoding="utf-8") as file:
-        tomlkit.dump(config_doc, file)  # type: ignore[arg-type]
+    with open(config_file, mode="wt", encoding="utf-8") as f:
+        tomlkit.dump(config_doc, f)  # type: ignore[arg-type]

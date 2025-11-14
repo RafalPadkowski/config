@@ -12,36 +12,28 @@ class Dataclass(Protocol):
 
 def load_config(
     config_file: str,
-    ui_cls: Type[Dataclass] | None = None,
     settings_cls: Type[Dataclass] | None = None,
-) -> tuple[Dataclass | None, Dataclass | None, dict[str, Any]]:
+) -> tuple[dict[str, Any], Dataclass | None]:
     with open(config_file, mode="rt", encoding="utf-8") as f:
         config_doc = tomlkit.load(f)
 
     config_dict = cast(dict[str, Any], config_doc)
 
-    if is_dataclass(ui_cls):
-        ui = ui_cls(**config_dict["ui"])
-    else:
-        ui = None
-
     if is_dataclass(settings_cls):
         settings_values: dict[str, Any] = {}
 
         for field in fields(settings_cls):
+            d = config_dict["settings"][field.name]
+
             setting: SettingType
 
             if field.type is SettingOptions:
-                d = config_dict["settings"][field.name]
-                options = [
-                    SettingOption(**option)
-                    for option in config_dict["settings"][field.name]["options"]
-                ]
+                options = [SettingOption(**option) for option in d["options"]]
                 setting = SettingOptions(
                     **{k: v for k, v in d.items() if k != "options"}, options=options
                 )
             else:
-                setting = SettingBoolean(**config_dict["settings"][field.name])
+                setting = SettingBoolean(**d)
 
             settings_values[field.name] = setting
 
@@ -49,7 +41,7 @@ def load_config(
     else:
         settings = None
 
-    return ui, settings, config_dict
+    return config_dict, settings
 
 
 def save_settings(config_file: str, settings: Dataclass):
